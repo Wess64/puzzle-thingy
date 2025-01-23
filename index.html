@@ -13,7 +13,7 @@
          background-color: #333;
          color: white;
         }
-        
+
         #level-maker-container {
             width: 250px;
             display: flex;
@@ -116,230 +116,236 @@
 <body>
     <br><hr style="border-color:#0D0C11; border-radius:5px;"><br>
 <div id="level-maker-container">
-            <div id="resize-controls">
-                <button id="export-level" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px;">⇱</button>
-                <input id="export-filename" type="text" placeholder="level.json" value="level.json" style="background: #222; color: white; border: 1px solid #555; border-radius: 4px; padding: 6px 12px; font-family: monospace; width: 100px;">
-                <button id="import-level" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px;">⇲ import..</button>
-                <input type="file" id="files" style="display: none;" accept=".json" />
-                <br><br>
-                
-                <input id="rows" type="number" min="1" value="5" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 30px;"> x <input id="columns" type="number" min="1" value="5" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 30px;">
-                <button id="resize-grid" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 35px;">↺</button>
-                <br><br>
-            </div>
+    <div id="resize-controls">
+        <button id="export-level" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px;">⇱</button>
+        <input id="export-filename" type="text" placeholder="level.json" value="level.json" style="background: #222; color: white; border: 1px solid #555; border-radius: 4px; padding: 6px 12px; font-family: monospace; width: 100px;">
+        <button id="import-level" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px;">⇲ import..</button>
+        <input type="file" id="files" style="display: none;" accept=".json" />
+        <br><br>
 
-            <div id="toolbar">
-                <button data-item="player" class="active">player</button>
-                <button data-item="wall">wall</button>
-                <button data-item="flag">flag</button>
-                <button data-item="box">box</button>
-                <button data-item="empty">empty</button>
-            </div><div id="grid" style="display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); width: 150px; height: 150px;"></div>
+        <input id="rows" type="number" min="1" value="5" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 30px;"> x <input id="columns" type="number" min="1" value="5" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 30px;">
+        <button id="resize-grid" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 35px;">↺</button>
+        <br><br>
+    </div>
 
-            <div id="mobile-controls" style="display: grid; grid-template-areas: 'up up up' 'left center right' 'down down down'; gap: 4px; width: 100px; margin: 10px auto;">
-                <button data-direction="up" style="grid-area: up; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">⬆️</button>
-                <button data-direction="left" style="grid-area: left; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">⬅️</button>
-                <button disabled style="grid-area: center; background: #111; color: #333; border: none; border-radius: 4px; padding: 10px;"> </button>
-                <button data-direction="right" style="grid-area: right; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">➡️</button>
-                <button data-direction="down" style="grid-area: down; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">⬇️</button>
-            </div>
-        </div>
+    <div id="toolbar">
+        <button data-item="player" class="active">player</button>
+        <button data-item="wall">wall</button>
+        <button data-item="flag">flag</button>
+        <button data-item="box">box</button>
+        <button data-item="empty">empty</button>
+        <button data-item="door">door</button>
+        <button data-item="trap">spike</button>
+    </div>
+    <div id="grid" style="display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); width: 150px; height: 150px;"></div>
 
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        let rows = 5;
-        let columns = 5;
-        let currentItem = "player";
-        let playerPosition = null;
-        let gameObjects = new Array(rows * columns).fill(null);
+    <div id="mobile-controls" style="display: grid; grid-template-areas: 'up up up' 'left center right' 'down down down'; gap: 4px; width: 100px; margin: 10px auto;">
+        <button data-direction="up" style="grid-area: up; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">⬆️</button>
+        <button data-direction="left" style="grid-area: left; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">⬅️</button>
+        <button disabled style="grid-area: center; background: #111; color: #333; border: none; border-radius: 4px; padding: 10px;"> </button>
+        <button data-direction="right" style="grid-area: right; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">➡️</button>
+        <button data-direction="down" style="grid-area: down; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">⬇️</button>
+    </div>
+</div>
 
-        const grid = document.querySelector("#grid");
-        const toolbar = document.querySelector("#toolbar");
-        const resizeControls = document.querySelector("#resize-controls");
-        const mobileControls = document.querySelector("#mobile-controls");
-        document.querySelector("#export-level").addEventListener("click", () => {
-    const exportFilename = document.querySelector("#export-filename").value || "level.json";
-    
-    // Prepare the grid data with size
-    const levelData = {
-        rows: rows,
-        columns: columns,
-        objects: gameObjects,
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    let rows = 5;
+    let columns = 5;
+    let currentItem = "player";
+    let playerPosition = null;
+    let gameObjects = new Array(rows * columns).fill(null);
+
+    const grid = document.querySelector("#grid");
+    const toolbar = document.querySelector("#toolbar");
+    const mobileControls = document.querySelector("#mobile-controls");
+
+    const OBJECTS = {
+        player: "𖠦",
+        wall: "☰",
+        flag: "⚐",
+        box: "☒",
+        empty: "",
+        door: "☷",
+        trap: "◭",
     };
 
-    const blob = new Blob([JSON.stringify(levelData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = exportFilename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-});
+    // Export level
+    document.querySelector("#export-level").addEventListener("click", () => {
+        const exportFilename = document.querySelector("#export-filename").value || "level.json";
 
-// Open file dialog when the button is clicked
-document.getElementById("import-level").addEventListener("click", function() {
-    document.getElementById("files").click();
-});
-
-// Handle the file input change event (file selection)
-document.getElementById("files").addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        try {
-            const levelData = JSON.parse(event.target.result);
-
-            // Validate data format (ensure rows, columns, and objects exist)
-            if (levelData.rows && levelData.columns && Array.isArray(levelData.objects)) {
-                // Set grid size from imported data
-                rows = levelData.rows;
-                columns = levelData.columns;
-
-                // Check if object count matches grid size
-                if (rows * columns !== levelData.objects.length) {
-                    alert("⚠ grid size ≠ total objects");
-                    return;
-                }
-
-                // Set game objects from imported data
-                gameObjects = levelData.objects;
-
-                // Re-generate the grid based on the imported data
-                generateGrid();
-
-                // Populate grid with objects
-                for (let i = 0; i < gameObjects.length; i++) {
-                    grid.children[i].textContent = OBJECTS[gameObjects[i]] || "";
-                }
-
-                // Optionally adjust player position if needed
-                const playerIndex = gameObjects.indexOf("player");
-                playerPosition = playerIndex !== -1 ? playerIndex : null;
-            } else {
-                alert("⚠ invalid level data format.");
-            }
-        } catch (error) {
-            console.error("⚠:", error);
-            alert("rror importing level data. Please check the file format.");
-        }
-    };
-    reader.readAsText(file);
-});
-
-        const OBJECTS = {
-            player: "𖠦",
-            wall: "☰",
-            flag: "⚐",
-            box: "☒",
-            empty: "",
+        const levelData = {
+            rows: rows,
+            columns: columns,
+            objects: gameObjects,
         };
 
-        function generateGrid() {
-            grid.innerHTML = "";
-            grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-            grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        const blob = new Blob([JSON.stringify(levelData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
 
-            for (let i = 0; i < rows * columns; i++) {
-                const cell = document.createElement("div");
-                cell.dataset.index = i;
-                cell.style.border = "1px solid black";
-                grid.appendChild(cell);
-            }
-        }
-
-        function movePlayer(direction) {
-            if (playerPosition === null) return;
-
-            const oldIndex = playerPosition;
-            let newIndex = oldIndex;
-
-            if (direction === "up" && oldIndex >= columns) newIndex -= columns;
-            if (direction === "down" && oldIndex < columns * (rows - 1)) newIndex += columns;
-            if (direction === "left" && oldIndex % columns !== 0) newIndex -= 1;
-            if (direction === "right" && (oldIndex + 1) % columns !== 0) newIndex += 1;
-
-            const newObject = gameObjects[newIndex];
-            if (newObject === "wall") return;
-
-            if (newObject === "box") {
-                const boxNewIndex = newIndex + (newIndex - oldIndex);
-                if (gameObjects[boxNewIndex] === null) {
-                    gameObjects[boxNewIndex] = "box";
-                    grid.children[boxNewIndex].textContent = OBJECTS.box;
-                    gameObjects[newIndex] = null;
-                } else {
-                    return;
-                }
-            }
-
-            if (newObject === "flag") {
-                alert("웃 nice");
-                return;
-            }
-
-            grid.children[oldIndex].textContent = "";
-            gameObjects[oldIndex] = null;
-
-            playerPosition = newIndex;
-            gameObjects[newIndex] = "player";
-            grid.children[newIndex].textContent = OBJECTS.player;
-        }
-
-        toolbar.addEventListener("click", (e) => {
-            if (e.target.tagName === "BUTTON") {
-                currentItem = e.target.dataset.item;
-                document.querySelectorAll("#toolbar button").forEach(btn => btn.classList.remove("active"));
-                e.target.classList.add("active");
-            }
-        });
-
-        grid.addEventListener("click", (e) => {
-            if (e.target.parentElement === grid) {
-                const index = Number(e.target.dataset.index);
-
-                if (currentItem === "player" && playerPosition !== null) {
-                    grid.children[playerPosition].textContent = "";
-                    gameObjects[playerPosition] = null;
-                }
-
-                e.target.textContent = OBJECTS[currentItem];
-                gameObjects[index] = currentItem;
-
-                if (currentItem === "player") {
-                    playerPosition = index;
-                } else if (currentItem === "empty") {
-                    gameObjects[index] = null;
-                }
-            }
-        });
-
-        document.addEventListener("keydown", (e) => {
-            const directionMap = {
-                ArrowUp: "up",
-                ArrowDown: "down",
-                ArrowLeft: "left",
-                ArrowRight: "right",
-            };
-            if (directionMap[e.key]) movePlayer(directionMap[e.key]);
-        });
-
-        mobileControls.addEventListener("click", (e) => {
-            if (e.target.tagName === "BUTTON") movePlayer(e.target.dataset.direction);
-        });
-
-        resizeControls.querySelector("#resize-grid").addEventListener("click", () => {
-            rows = parseInt(resizeControls.querySelector("#rows").value) || 1;
-            columns = parseInt(resizeControls.querySelector("#columns").value) || 1;
-            generateGrid();
-        });
-
-        generateGrid();
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = exportFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     });
+
+    document.getElementById("import-level").addEventListener("click", () => {
+        document.getElementById("files").click();
+    });
+
+    document.getElementById("files").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const levelData = JSON.parse(event.target.result);
+
+                
+                if (levelData.rows && levelData.columns && Array.isArray(levelData.objects)) {
+                    rows = levelData.rows;
+                    columns = levelData.columns;
+                    gameObjects = levelData.objects;
+
+                    updateGrid();
+                } else {
+                    alert("thats invalid");
+                }
+            } catch (err) {
+                alert("⚠: " + err.message);
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    // Grid resize
+    document.querySelector("#resize-grid").addEventListener("click", () => {
+        const newRows = parseInt(document.querySelector("#rows").value, 10);
+        const newColumns = parseInt(document.querySelector("#columns").value, 10);
+
+        if (newRows > 0 && newColumns > 0) {
+            rows = newRows;
+            columns = newColumns;
+            gameObjects = new Array(rows * columns).fill(null);
+            updateGrid();
+        } else {
+            alert("rows and/or columns cant be 0");
+        }
+    });
+
+    toolbar.addEventListener("click", (event) => {
+        if (event.target.tagName === "BUTTON") {
+            toolbar.querySelectorAll("button").forEach((btn) => btn.classList.remove("active"));
+            event.target.classList.add("active");
+            currentItem = event.target.dataset.item;
+        }
+    });
+
+    grid.addEventListener("click", (event) => {
+        const cell = event.target;
+        const index = Array.from(grid.children).indexOf(cell);
+
+        if (currentItem === "player") {
+            if (playerPosition !== null) {
+                gameObjects[playerPosition] = null;
+            }
+            playerPosition = index;
+        }
+
+        gameObjects[index] = currentItem;
+        updateGrid();
+    });
+
+    mobileControls.addEventListener("click", (event) => {
+        if (playerPosition === null || event.target.tagName !== "BUTTON") return;
+
+        const direction = event.target.dataset.direction;
+        let newPosition = playerPosition;
+
+        if (direction === "up" && playerPosition >= columns) {
+            newPosition -= columns;
+        } else if (direction === "down" && playerPosition < columns * (rows - 1)) {
+            newPosition += columns;
+        } else if (direction === "left" && playerPosition % columns !== 0) {
+            newPosition -= 1;
+        } else if (direction === "right" && (playerPosition + 1) % columns !== 0) {
+            newPosition += 1;
+        }
+
+        const destinationObject = gameObjects[newPosition];
+
+        
+        if (destinationObject === "box") {
+            let boxNewPosition = newPosition;
+
+            if (direction === "up") boxNewPosition -= columns;
+            else if (direction === "down") boxNewPosition += columns;
+            else if (direction === "left") boxNewPosition -= 1;
+            else if (direction === "right") boxNewPosition += 1;
+
+            
+            if (gameObjects[boxNewPosition] === null || gameObjects[boxNewPosition] === "flag") {
+                gameObjects[boxNewPosition] = "box"; 
+                gameObjects[newPosition] = "player"; 
+                gameObjects[playerPosition] = null; 
+                playerPosition = newPosition; 
+            }
+            updateGrid();
+            return;
+        }
+
+        if (destinationObject === "wall") {
+            return; 
+        }
+
+        if (destinationObject === "trap") {
+            alert(")-|0 nooooooo hes ded");
+            gameObjects[playerPosition] = null; 
+            playerPosition = null;
+            updateGrid();
+            return;
+        }
+
+        if (destinationObject === "flag") {
+            alert("웃 hell yea");
+            return;
+        }
+
+        if (destinationObject === null || destinationObject === "door") {
+            
+            gameObjects[playerPosition] = null; 
+            gameObjects[newPosition] = "player"; 
+            playerPosition = newPosition; 
+        }
+
+        updateGrid(); 
+    });
+
+    function initializePlayer() {
+        playerPosition = gameObjects.indexOf("player");
+    }
+
+    function updateGrid() {
+        grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+        grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+        grid.innerHTML = "";
+        gameObjects.forEach((obj, i) => {
+            const cell = document.createElement("div");
+            cell.textContent = OBJECTS[obj] || "";
+            cell.className = obj || ""; 
+            grid.appendChild(cell);
+        });
+
+        initializePlayer(); 
+    }
+
+    updateGrid();
+});
 </script>
 </body>
 </html>
