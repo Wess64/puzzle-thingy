@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>𖠦☐☐☐</title>
+    <style>
+        body {
+         font-family: Arial, sans-serif;
+         margin: 0;
+         padding: 0;
+         overflow: visible;
+         background-color: #333;
+         color: white;
+        }
+        
+        #level-maker-container {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #181818;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        #toolbar {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        #toolbar button {
+            background: #333;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: monospace;
+            transition: background 0.3s ease;
+        }
+
+        #toolbar button.active {
+            background: #666;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 3px;
+            width: 100%;
+            height: 250px;
+            margin-bottom: 10px;
+        }
+
+        #grid div {
+            background: #444;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        #grid div:hover {
+            background: #555;
+            transform: scale(1.05);
+        }
+
+        #mobile-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        #mobile-controls button {
+            background: #333;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: monospace;
+            transition: background 0.3s ease;
+        }
+
+        #map-data {
+            margin-top: 10px;
+            background: #222;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <br><hr style="border-color:#0D0C11; border-radius:5px;"><br>
+<div id="level-maker-container">
+            <div id="resize-controls">
+                <button id="export-level" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px;">⇱</button>
+                <input id="export-filename" type="text" placeholder="level.json" value="level.json" style="background: #222; color: white; border: 1px solid #555; border-radius: 4px; padding: 6px 12px; font-family: monospace; width: 100px;">
+                <button id="import-level" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px;">⇲ import..</button>
+                <br><br>
+                
+                <input id="rows" type="number" min="1" value="5" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 30px;"> x <input id="columns" type="number" min="1" value="5" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 30px;">
+                <button id="resize-grid" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 35px;">↺</button>
+                <br><br>
+            </div>
+
+            <div id="toolbar">
+                <button data-item="player" class="active">player</button>
+                <button data-item="wall">wall</button>
+                <button data-item="flag">flag</button>
+                <button data-item="box">box</button>
+                <button data-item="empty">empty</button>
+            </div><div id="grid" style="display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); width: 150px; height: 150px;"></div>
+
+            <div id="mobile-controls" style="display: grid; grid-template-areas: 'up up up' 'left center right' 'down down down'; gap: 4px; width: 100px; margin: 10px auto;">
+                <button data-direction="up" style="grid-area: up; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">⬆️</button>
+                <button data-direction="left" style="grid-area: left; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">⬅️</button>
+                <button disabled style="grid-area: center; background: #111; color: #333; border: none; border-radius: 4px; padding: 10px;"> </button>
+                <button data-direction="right" style="grid-area: right; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">➡️</button>
+                <button data-direction="down" style="grid-area: down; background: #333; color: white; border: none; border-radius: 4px; padding: 10px;">⬇️</button>
+            </div>
+        </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        let rows = 5;
+        let columns = 5;
+        let currentItem = "player";
+        let playerPosition = null;
+        let gameObjects = new Array(rows * columns).fill(null);
+
+        const grid = document.querySelector("#grid");
+        const toolbar = document.querySelector("#toolbar");
+        const resizeControls = document.querySelector("#resize-controls");
+        const mobileControls = document.querySelector("#mobile-controls");
+
+        const OBJECTS = {
+            player: "𖠦",
+            wall: "☰",
+            flag: "⚐",
+            box: "☒",
+            empty: "",
+        };
+
+        function generateGrid() {
+            grid.innerHTML = "";
+            grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+            grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+            for (let i = 0; i < rows * columns; i++) {
+                const cell = document.createElement("div");
+                cell.dataset.index = i;
+                cell.style.border = "1px solid black";
+                grid.appendChild(cell);
+            }
+        }
+
+        function movePlayer(direction) {
+            if (playerPosition === null) return;
+
+            const oldIndex = playerPosition;
+            let newIndex = oldIndex;
+
+            if (direction === "up" && oldIndex >= columns) newIndex -= columns;
+            if (direction === "down" && oldIndex < columns * (rows - 1)) newIndex += columns;
+            if (direction === "left" && oldIndex % columns !== 0) newIndex -= 1;
+            if (direction === "right" && (oldIndex + 1) % columns !== 0) newIndex += 1;
+
+            const newObject = gameObjects[newIndex];
+            if (newObject === "wall") return;
+
+            if (newObject === "box") {
+                const boxNewIndex = newIndex + (newIndex - oldIndex);
+                if (gameObjects[boxNewIndex] === null) {
+                    gameObjects[boxNewIndex] = "box";
+                    grid.children[boxNewIndex].textContent = OBJECTS.box;
+                    gameObjects[newIndex] = null;
+                } else {
+                    return;
+                }
+            }
+
+            if (newObject === "flag") {
+                alert("웃 nice");
+                return;
+            }
+
+            grid.children[oldIndex].textContent = "";
+            gameObjects[oldIndex] = null;
+
+            playerPosition = newIndex;
+            gameObjects[newIndex] = "player";
+            grid.children[newIndex].textContent = OBJECTS.player;
+        }
+
+        toolbar.addEventListener("click", (e) => {
+            if (e.target.tagName === "BUTTON") {
+                currentItem = e.target.dataset.item;
+                document.querySelectorAll("#toolbar button").forEach(btn => btn.classList.remove("active"));
+                e.target.classList.add("active");
+            }
+        });
+
+        grid.addEventListener("click", (e) => {
+            if (e.target.parentElement === grid) {
+                const index = Number(e.target.dataset.index);
+
+                if (currentItem === "player" && playerPosition !== null) {
+                    grid.children[playerPosition].textContent = "";
+                    gameObjects[playerPosition] = null;
+                }
+
+                e.target.textContent = OBJECTS[currentItem];
+                gameObjects[index] = currentItem;
+
+                if (currentItem === "player") {
+                    playerPosition = index;
+                } else if (currentItem === "empty") {
+                    gameObjects[index] = null;
+                }
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            const directionMap = {
+                ArrowUp: "up",
+                ArrowDown: "down",
+                ArrowLeft: "left",
+                ArrowRight: "right",
+            };
+            if (directionMap[e.key]) movePlayer(directionMap[e.key]);
+        });
+
+        mobileControls.addEventListener("click", (e) => {
+            if (e.target.tagName === "BUTTON") movePlayer(e.target.dataset.direction);
+        });
+
+        resizeControls.querySelector("#resize-grid").addEventListener("click", () => {
+            rows = parseInt(resizeControls.querySelector("#rows").value) || 1;
+            columns = parseInt(resizeControls.querySelector("#columns").value) || 1;
+            generateGrid();
+        });
+
+        generateGrid();
+    });
+</script>
+</body>
+</html>
