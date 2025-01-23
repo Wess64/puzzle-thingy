@@ -120,6 +120,7 @@
                 <button id="export-level" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px;">⇱</button>
                 <input id="export-filename" type="text" placeholder="level.json" value="level.json" style="background: #222; color: white; border: 1px solid #555; border-radius: 4px; padding: 6px 12px; font-family: monospace; width: 100px;">
                 <button id="import-level" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px;">⇲ import..</button>
+                <input type="file" id="files" style="display: none;" accept=".json" />
                 <br><br>
                 
                 <input id="rows" type="number" min="1" value="5" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 30px;"> x <input id="columns" type="number" min="1" value="5" style="background: #333; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-family: monospace; width: 30px;">
@@ -156,6 +157,79 @@
         const toolbar = document.querySelector("#toolbar");
         const resizeControls = document.querySelector("#resize-controls");
         const mobileControls = document.querySelector("#mobile-controls");
+        document.querySelector("#export-level").addEventListener("click", () => {
+    const exportFilename = document.querySelector("#export-filename").value || "level.json";
+    
+    // Prepare the grid data with size
+    const levelData = {
+        rows: rows,
+        columns: columns,
+        objects: gameObjects,
+    };
+
+    const blob = new Blob([JSON.stringify(levelData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = exportFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+
+// Open file dialog when the button is clicked
+document.getElementById("import-level").addEventListener("click", function() {
+    document.getElementById("files").click();
+});
+
+// Handle the file input change event (file selection)
+document.getElementById("files").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        try {
+            const levelData = JSON.parse(event.target.result);
+
+            // Validate data format (ensure rows, columns, and objects exist)
+            if (levelData.rows && levelData.columns && Array.isArray(levelData.objects)) {
+                // Set grid size from imported data
+                rows = levelData.rows;
+                columns = levelData.columns;
+
+                // Check if object count matches grid size
+                if (rows * columns !== levelData.objects.length) {
+                    alert("⚠ grid size ≠ total objects");
+                    return;
+                }
+
+                // Set game objects from imported data
+                gameObjects = levelData.objects;
+
+                // Re-generate the grid based on the imported data
+                generateGrid();
+
+                // Populate grid with objects
+                for (let i = 0; i < gameObjects.length; i++) {
+                    grid.children[i].textContent = OBJECTS[gameObjects[i]] || "";
+                }
+
+                // Optionally adjust player position if needed
+                const playerIndex = gameObjects.indexOf("player");
+                playerPosition = playerIndex !== -1 ? playerIndex : null;
+            } else {
+                alert("⚠ invalid level data format.");
+            }
+        } catch (error) {
+            console.error("⚠:", error);
+            alert("rror importing level data. Please check the file format.");
+        }
+    };
+    reader.readAsText(file);
+});
 
         const OBJECTS = {
             player: "𖠦",
